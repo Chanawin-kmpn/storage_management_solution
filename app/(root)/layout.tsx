@@ -7,6 +7,8 @@ import Sidebar from '@/components/Sidebar';
 import { Toaster } from '@/components/ui/toaster';
 import { getCurrentUser } from '@/lib/actions/users.actions';
 
+export const dynamic = 'force-dynamic';
+
 const Layout = async ({ children }: { children: React.ReactNode }) => {
 	const currentUser = await getCurrentUser();
 
