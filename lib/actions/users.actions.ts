@@ -96,23 +96,27 @@ export const verifySecret = async ({
 };
 
 export const getCurrentUser = async () => {
-	const { databases, account } = await createSessionClient();
-	//* ฟังก์ชัน createSessionClient() จะคืนค่าไคลเอนต์ที่มีการตั้งค่าด้วยเซสชันปัจจุบัน ซึ่งช่วยให้เราสามารถเข้าถึงข้อมูลบัญชี (account) และฐานข้อมูล (databases) ด้วยสิทธิ์ของผู้ใช้ที่เข้าสู่ระบบอยู่
+	try {
+		const { databases, account } = await createSessionClient();
+		//* ฟังก์ชัน createSessionClient() จะคืนค่าไคลเอนต์ที่มีการตั้งค่าด้วยเซสชันปัจจุบัน ซึ่งช่วยให้เราสามารถเข้าถึงข้อมูลบัญชี (account) และฐานข้อมูล (databases) ด้วยสิทธิ์ของผู้ใช้ที่เข้าสู่ระบบอยู่
 
-	const result = await account.get();
-	//* ใช้ account.get() เพื่อดึงข้อมูลบัญชีของผู้ใช้ปัจจุบัน ข้อมูลนี้จะมี result.$id ซึ่งเป็น ID ของบัญชีผู้ใช้ในระบบการพิสูจน์ตัวตน (Authentication) ของ Appwrite
+		const result = await account.get();
+		//* ใช้ account.get() เพื่อดึงข้อมูลบัญชีของผู้ใช้ปัจจุบัน ข้อมูลนี้จะมี result.$id ซึ่งเป็น ID ของบัญชีผู้ใช้ในระบบการพิสูจน์ตัวตน (Authentication) ของ Appwrite
 
-	const user = await databases.listDocuments(
-		appwriteConfig.databaseId,
-		appwriteConfig.usersCollectionId,
-		[Query.equal('accountId', [result.$id])]
-	);
-	//* ใช้ databases.listDocuments() เพื่อค้นหาเอกสารผู้ใช้ในคอลเล็กชันผู้ใช้ (appwriteConfig.usersCollectionId) ในฐานข้อมูล
-	//* ใช้ตัวกรอง Query.equal('accountId', [result.$id]) เพื่อหาเอกสารที่มี accountId ตรงกับ ID ของบัญชีผู้ใช้ที่ได้จากขั้นตอนก่อนหน้า
+		const user = await databases.listDocuments(
+			appwriteConfig.databaseId,
+			appwriteConfig.usersCollectionId,
+			[Query.equal('accountId', [result.$id])]
+		);
+		//* ใช้ databases.listDocuments() เพื่อค้นหาเอกสารผู้ใช้ในคอลเล็กชันผู้ใช้ (appwriteConfig.usersCollectionId) ในฐานข้อมูล
+		//* ใช้ตัวกรอง Query.equal('accountId', [result.$id]) เพื่อหาเอกสารที่มี accountId ตรงกับ ID ของบัญชีผู้ใช้ที่ได้จากขั้นตอนก่อนหน้า
 
-	if (user.total <= 0) return null;
+		if (user.total <= 0) return null;
 
-	return parseStringify(user.documents[0]);
+		return parseStringify(user.documents[0]);
+	} catch (error) {
+		console.log(error);
+	}
 };
 
 export const signOutUser = async () => {
